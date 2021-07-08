@@ -25,12 +25,6 @@ struct ProductStore {
         scrollPageShow = []
     }
     
-    //
-    //
-    //
-    //
-    //
-    
     init() {
         products = []
         scrollPageShow = []
@@ -38,6 +32,42 @@ struct ProductStore {
     
     var products : [Product]
     var scrollPageShow : [Product]
+    var isProductsEmpty : Bool { products.isEmpty }
+    var numOfProducts: Int { products.count }
+    
+    func getProductIDby( index : Int ) -> Int {
+        if index < products.count {
+            return products[index].id
+        }
+        else {
+            return 0
+        }
+    }
+    
+    func getIndexIDby( productID : Int ) -> Int? {
+        // upgrade here !!
+        // aware product id not found : able to check before use this function?
+        // should return nil for not found ?
+        for i in 0..<products.count {
+            if(  products[i].id == productID ) {
+                return i
+            }
+        }
+        return nil
+    }
+    
+    mutating func setCoverImageById( ID : Int, image : UIImage) {
+        if let index = getIndexIDby(productID: ID) {
+            self.products[index].coverImage = image
+            self.products[index].coverLoaded = true
+        }
+    }
+    mutating func setThumbImageById( ID : Int, image : UIImage) {
+        if let index = getIndexIDby(productID: ID) {
+            self.products[index].thumbnailImage = image
+            self.products[index].thumbnailLoaded = true
+        }
+    }
     
     mutating func sortById() {
         self.products.sort{ $0.id > $1.id }

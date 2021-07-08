@@ -13,14 +13,13 @@ let yExtension: CGFloat = 0
 struct ContentView: View {
     
     @ObservedObject var mainVM : MainViewModel = MainViewModel()
-    
+
     var body: some View {
         NavigationView {
             VStack {
                 HStack {
                     Text("Product")
                         .bold()
-                
                     Spacer()
                     Menu {
                         Button("Sort A-Z", action: {})
@@ -38,7 +37,7 @@ struct ContentView: View {
                         VStack {
                             ScrollView(.horizontal) {
                                 HStack {
-                                    ForEach ( 0..<20 ) { i in
+                                    ForEach ( 0..<5 ) { i in
 //                                        Image("000\(i%6)")
                                         if( !mainVM.productStore.products.isEmpty  ) {
                                             Image( uiImage: (((mainVM.productStore.products[0].thumbnailImage != nil) ? mainVM.productStore.products[0].thumbnailImage! : mainVM.productStore.products[0].placeHolder)! ))
@@ -77,10 +76,11 @@ struct ContentView: View {
         .edgesIgnoringSafeArea(.all)
         .onAppear(perform: {
             mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
-            for i in 0..<5 {
-                mainVM.loadImage(productId: i)
-            }
-            print(mainVM.productStore.products[1])
+//            for i in 0..<5 {
+//                mainVM.loadImage(productId: i)
+//            }
+            mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
+            print("Number of All Products =  \(mainVM.productStore.products.count)" )
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
                 // Deley on Appear
             }
@@ -116,10 +116,24 @@ struct ScrollInPages: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack {
-                ForEach ( 0..<10 ) { i in
-                    NavigationLink( destination: ProductDetailView2( product : $mainVM.productStore.products[i] ) ) {
-                        ProductRow2(product: $mainVM.productStore.products[i] )
+            LazyVStack {
+//                ForEach ( 0..<10 ) { i in
+//                List ( 0..<10 , id: \.self) { i in
+                ForEach( mainVM.showLists[0], id : \.self ) { i in
+                    // Add selected for Show condition here 
+                    if( mainVM.productStore.products[i].imageLoaded && mainVM.showLists[0].contains(i) ) {
+                        NavigationLink( destination: ProductDetailView2( product : $mainVM.productStore.products[i] ) ) {
+                            ProductRow2(product: $mainVM.productStore.products[i] )
+                        }.onAppear(){
+                            print("On Appear run at \(i)")
+                            if( i == mainVM.showLists[0].count - 3  ) {
+                                print("On appear page = \(i) ")
+                                mainVM.updateShowListOf(page: 0, showIndex: i)
+                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow2())
+                            }
+                            
+                        }
+                        
                     }
                 }
             }

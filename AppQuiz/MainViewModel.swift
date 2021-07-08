@@ -9,10 +9,12 @@ import Foundation
 import SwiftUI
 import Combine
 
+let numberOfProductInPage = 20
+
 class MainViewModel : ObservableObject {
     
     @Published var productStore : ProductStore
-    
+    @Published var showLists : [[Int]] = [[0,1,2,3,4]]
     // var MainData : ContentData
     // Data must be arragable
     
@@ -40,35 +42,108 @@ class MainViewModel : ObservableObject {
         
     }
     
-    func prepareProductForShow(){
-        // Put Id to loadImage
+    func updateShowListOf( page : Int, showIndex : Int ) {
+        let numberOfProductsInShowList = showLists[page].count
+        if( page < showLists.count ) {
+            for i in 0..<5 {
+                let addIndex = (page * numberOfProductInPage) + numberOfProductsInShowList + i
+                if( addIndex < productStore.products.count ) {
+                    showLists[page].append( addIndex )
+                    print("Add to ShowList Index = ",addIndex)
+                }
+            }
+        }
+    }
+    
+    func prepareProductForShow2() -> [Int] {
+//        let mainScrollIndex = 0
+//        var startIndex = 0
+//        var endIndex = 0
+//        var productIdList : [Int] = []
+//        // check is empty?
+//        // check product count?
+//        if( mainScrollIndex == 0) {
+//            startIndex = 0
+//            endIndex = 0 + 5
+//            for i in startIndex..<endIndex {
+//                if( !productStore.products[i].imageLoaded) {
+//                    print("index = \(i)")
+//                    productIdList.append(productStore.getProductIDby(index: i))
+//                }
+//            }
+//        }
+//        return productIdList
+        var productIdList : [Int] = []
+        for showList in showLists {
+            for i in showList {
+                if( !productStore.products[i].imageLoaded) {
+                    print("Prepare load image at index = \(i)")
+                    productIdList.append(productStore.getProductIDby(index: i))
+                }
+            }
+        }
+        return productIdList
+    }
+    
+    func prepareProductForShow() -> [Int] {
+        let mainScrollIndex = 0
+        var startIndex = 0
+        var endIndex = 0
+        var productIdList : [Int] = []
+        // check is empty?
+        // check product count?
+        if( mainScrollIndex == 0) {
+            startIndex = 0
+            endIndex = 0 + 5
+            for i in startIndex..<endIndex {
+                if( !productStore.products[i].imageLoaded) {
+                    print("index = \(i)")
+                    productIdList.append(productStore.getProductIDby(index: i))
+                }
+            }
+        }
+        return productIdList
+    }
+    
+    func loadImageList( productIdList : [Int] ) {
+        if !productIdList.isEmpty {
+            for i in productIdList {
+                print("LoadImage ID in List = \(i)" )
+                loadImage(productId: i)
+            }
+        }
     }
     
     func loadImage( productId : Int) {
-        
-        guard let coverImageURL = self.productStore.products[productId].coverImageURL else {
-            fatalError("Cover ImageURL is not correct!")
-        }
-
-        URLSession.shared.dataTask(with: coverImageURL ) { data, resp, err in
-            DispatchQueue.main.async {
-                self.productStore.products[productId].coverImage = UIImage(data: data!)
-                self.productStore.products[productId].coverLoaded = true
-                print("Cover id = \(productId) loaded")
+//
+//        guard let coverImageURL = self.productStore.products[productId].coverImageURL else {
+//            fatalError("Cover ImageURL is not correct!")
+//        }
+        if let index = productStore.getIndexIDby(productID: productId) {
+            guard let coverImageURL = self.productStore.products[index].coverImageURL else {
+                fatalError("Cover ImageURL is not correct!")
             }
-        }.resume()
-        
-        guard let thumbImageURL = self.productStore.products[productId].thumbnailImageURL else {
-            fatalError("Thumbnail ImageURL is not correct!")
-        }
-
-        URLSession.shared.dataTask(with: thumbImageURL) { data, resp, err in
-            DispatchQueue.main.async {
-                self.productStore.products[productId].thumbnailImage = UIImage(data: data!)
-                self.productStore.products[productId].thumbnailLoaded = true
-                print("Thumbnail id = \(productId) loaded")
+            
+            URLSession.shared.dataTask(with: coverImageURL ) { data, resp, err in
+                DispatchQueue.main.async {
+                    self.productStore.setCoverImageById( ID: productId, image: UIImage(data: data!)! )
+                    //                self.productStore.products[productId].coverLoaded = true
+                    print("Cover id = \(productId) loaded")
+                }
+            }.resume()
+            
+            guard let thumbImageURL = self.productStore.products[index].thumbnailImageURL else {
+                fatalError("Thumbnail ImageURL is not correct!")
             }
-        }.resume()
+            
+            URLSession.shared.dataTask(with: thumbImageURL) { data, resp, err in
+                DispatchQueue.main.async {
+                    self.productStore.setThumbImageById( ID: productId, image: UIImage(data: data!)! )
+                    //                self.productStore.products[productId].thumbnailLoaded = true
+                    print("Thumbnail id = \(productId) loaded")
+                }
+            }.resume()
+        }
     }
     
 }
