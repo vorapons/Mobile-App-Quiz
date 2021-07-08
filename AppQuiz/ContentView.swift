@@ -12,7 +12,8 @@ let yExtension: CGFloat = 0
 
 struct ContentView: View {
     
-    @ObservedObject var mainVM : MainViewModel = MainViewModel()
+//    @ObservedObject var mainVM : MainViewModel = MainViewModel()
+    @ObservedObject var mainVM : MainViewModel
 
     var body: some View {
         NavigationView {
@@ -56,8 +57,17 @@ struct ContentView: View {
                                 }
                             }.padding(.leading , 10)
                             .padding(.bottom , 10)
+//                            TabView {
+//                                ForEach( 0..<4 ){ i in
+//                                    ScrollInPages(mainVM: mainVM)
+//                                }
+//                            }
+//                            .frame(width: gp.size.width, height: gp.size.height + yExtension)
+//                            .tabViewStyle(PageTabViewStyle())
                             TabView {
-                                ForEach( 0..<7 ){ i in
+//                                ForEach( 0..<mainVM.numberOfPages ){ i in
+                                ForEach( 0..<1 ){ i in
+//                                    ScrollInPagesWithPages(mainVM: mainVM,pageNumber: i)
                                     ScrollInPages(mainVM: mainVM)
                                 }
                             }
@@ -75,15 +85,15 @@ struct ContentView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .onAppear(perform: {
-            mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
-//            for i in 0..<5 {
-//                mainVM.loadImage(productId: i)
+//            mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
+////            for i in 0..<5 {
+////                mainVM.loadImage(productId: i)
+////            }
+//            mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
+//            print("Number of All Products =  \(mainVM.productStore.products.count)" )
+//            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+//                // Deley on Appear
 //            }
-            mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
-            print("Number of All Products =  \(mainVM.productStore.products.count)" )
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
-                // Deley on Appear
-            }
         })
     }
     
@@ -105,8 +115,9 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
 //        ContentView()
-//        ProductDetailView()
-        TestImageView()
+//        ProductDetailView2()
+//        TestImageView()
+        EmptyView()
     }
 }
 
@@ -119,14 +130,47 @@ struct ScrollInPages: View {
             LazyVStack {
 //                ForEach ( 0..<10 ) { i in
 //                List ( 0..<10 , id: \.self) { i in
-                ForEach( mainVM.showLists[0], id : \.self ) { i in
+                ForEach( mainVM.productStore.showLists[0], id : \.self ) { i in
                     // Add selected for Show condition here 
-                    if( mainVM.productStore.products[i].imageLoaded && mainVM.showLists[0].contains(i) ) {
-                        NavigationLink( destination: ProductDetailView2( product : $mainVM.productStore.products[i] ) ) {
-                            ProductRow2(product: $mainVM.productStore.products[i] )
+                    if( mainVM.productStore.products[i].imageLoaded && mainVM.productStore.showLists[0].contains(i) ) {
+                        NavigationLink( destination: ProductDetailView( product : $mainVM.productStore.products[i] ) ) {
+                            ProductRow(product: $mainVM.productStore.products[i] )
                         }.onAppear(){
                             print("On Appear run at \(i)")
-                            if( i == mainVM.showLists[0].count - 3  ) {
+                            if( i == mainVM.productStore.showLists[0].count - 3  ) {
+                                print("On appear page = \(i) ")
+                                mainVM.updateShowListOf(page: 0, showIndex: i)
+                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow2())
+                            }
+                            
+                        }
+                        
+                    }
+                }
+            }
+        }
+        
+    }
+}
+
+struct ScrollInPagesWithPages: View {
+    
+    @ObservedObject var mainVM : MainViewModel
+    var pageNumber : Int
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            LazyVStack {
+//                ForEach ( 0..<10 ) { i in
+//                List ( 0..<10 , id: \.self) { i in
+                ForEach( mainVM.productStore.showLists[pageNumber], id : \.self ) { i in
+                    // Add selected for Show condition here
+                    if( mainVM.productStore.products[i].imageLoaded && mainVM.productStore.showLists[0].contains(i) ) {
+                        NavigationLink( destination: ProductDetailView( product : $mainVM.productStore.products[i] ) ) {
+                            ProductRow(product: $mainVM.productStore.products[i] )
+                        }.onAppear(){
+                            print("On Appear run at \(i)")
+                            if( i == mainVM.productStore.showLists[0].count - 3  ) {
                                 print("On appear page = \(i) ")
                                 mainVM.updateShowListOf(page: 0, showIndex: i)
                                 mainVM.loadImageList(productIdList: mainVM.prepareProductForShow2())
@@ -144,70 +188,6 @@ struct ScrollInPages: View {
 
 struct ProductRow : View {
     
-    var title : String = "Handmade Soft Cheese"
-    var description : String = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J"
-    var createdDate : String = "วันที่สร้าง 9 ก.ค. 63 / 22.56น."
-    var thumbnailImage : UIImage = UIImage(named: "0000")!
-    
-    init( product : Product ) {
-        
-        title = product.title
-        description = product.description
-        let dateFormatter = DateFormatter()
-        createdDate = dateFormatter.string(from: product.createdAt)
-        guard product.thumbnailImage != nil else {
-            guard let placeHolder =  UIImage(named: "0000") else {
-                return
-            }
-            thumbnailImage = placeHolder
-            return
-        }
-        thumbnailImage = product.thumbnailImage!
-    }
-    
-    init() {
-        
-    }
-    
-    var body: some View {
-        ZStack {
-            GeometryReader { gp in
-                RoundedRectangle(cornerRadius: 10.0)
-                    .foregroundColor(.clear)
-                    .frame(width: gp.size.width, height: gp.size.height, alignment: .center)
-                    .background(Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(Color.gray) )
-                HStack{
-//                    Image("000\( Int.random(in:0..<6) )")
-                    Image(uiImage:thumbnailImage)
-                        .resizable()
-                        .frame(width: 100, height: gp.size.height, alignment: .center)
-                        .cornerRadius(5)
-                    VStack (alignment: .leading, spacing: 5) {
-                        Text(title)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .padding(.bottom,5)
-                        Text(description)
-                            .font(.footnote)
-                            .lineLimit(5)
-                            .multilineTextAlignment(.leading)
-                            .frame(height: 90 )
-                        Spacer()
-                        Text(createdDate)
-                            .font(.footnote)
-                    }.padding(5)
-                }
-            }
-        }.frame(width: 350, height: 170, alignment: .center)
-    }
-    
-}
-
-struct ProductRow2 : View {
-    
     @Binding var product : Product
  
     let dateFormatter = DateFormatter()
@@ -222,7 +202,7 @@ struct ProductRow2 : View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                         .stroke(Color.gray) )
-                HStack{
+                HStack(alignment : .top){
 //                    Image("000\( Int.random(in:0..<6) )")
                     Image( uiImage: ((product.thumbnailImage != nil) ? product.thumbnailImage! : product.placeHolder)!)
                         .resizable()
@@ -238,10 +218,13 @@ struct ProductRow2 : View {
                             .lineLimit(5)
                             .multilineTextAlignment(.leading)
                             .frame(height: 90 )
-                        Spacer()
-                        Text(dateFormatter.string(from: product.createdAt) )
+                        Text("\(product.id)")
                             .font(.footnote)
-                    }.padding(5)
+                        Text("วันที่สร้าง " + product.createdAtTH )
+                            .font(.footnote)
+                        Spacer()
+                    }.frame( height: gp.size.height, alignment: .center)
+                    .padding(5)
                 }
             }
         }.frame(width: 350, height: 170, alignment: .center)
@@ -249,32 +232,7 @@ struct ProductRow2 : View {
     
 }
 
-struct TestImageView : View {
-    let url : String = "https://picsum.photos/2048"
-    var body: some View {
-        ScrollView {
-            VStack (spacing : 20 ){
-                WebImage(url: URL(string: url)!)
-                        .resizable()
-                    .frame(width: 400, height: 400, alignment: .center)
-                WebImage(url: URL(string: url)!)
-                        .resizable()
-                    .frame(width: 400, height: 400, alignment: .center)
-                WebImage(url: URL(string: url)!)
-                        .resizable()
-                    .frame(width: 400, height: 400, alignment: .center)
-                WebImage(url: URL(string: url)!)
-                        .resizable()
-                    .frame(width: 400, height: 400, alignment: .center)
-                WebImage(url: URL(string: url)!)
-                        .resizable()
-                    .frame(width: 400, height: 400, alignment: .center)
-            }
-        }
-    }
-}
-
-struct ProductDetailView2 : View {
+struct ProductDetailView : View {
     
     @Environment(\.presentationMode) var presentationMode
     
@@ -316,7 +274,7 @@ struct ProductDetailView2 : View {
                 
                 VStack (alignment: .leading, spacing: 15) {
                     Text(product.description)
-                    Text("สัด")
+                    Text("วันที่สร้าง " + product.createdAtTH)
                 }
                 .padding(10)
                 Spacer()
@@ -326,100 +284,6 @@ struct ProductDetailView2 : View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .edgesIgnoringSafeArea(.top)
-//        .navigationBarItems(leading:
-//                                Button(action: {
-//                                    self.presentationMode.wrappedValue.dismiss()
-//                                }, label: {
-//                                    Image(systemName: "arrow.backward")
-//                                        .font(.system(size: 25, weight: .bold, design: .rounded))
-//                                        .foregroundColor(.black)
-//                                })
-//        )
-        
     }
 }
-
-
-struct ProductDetailView : View {
-    
-    var title : String = "Handmade Soft Cheese"
-    var description : String = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J"
-    var createdDate : String = "วันที่สร้าง 9 ก.ค. 63 / 22.56 น."
-    
-    @Environment(\.presentationMode) var presentationMode
-    
-    init( product : Product ) {
-        title = product.title
-        description = product.description
-        let dateFormatter = DateFormatter()
-        createdDate = dateFormatter.string(from: product.createdAt) // Fix Problem here it doesn't show on UI (Insert format)?
-    }
-    
-    init() {
-        
-    }
-    
-    var body : some View {
-    
-        GeometryReader { gp in
-            VStack(spacing : 0 ) {
-                ZStack {
-                    Rectangle()
-                        .frame(width: gp.size.width, height: 70)
-                        .foregroundColor(.white)
-                    HStack(alignment: .center, spacing: 0){
-                        Button(action: {
-                            print("TEST")
-                            self.presentationMode.wrappedValue.dismiss()
-                        }, label: {
-                            Image(systemName: "arrow.backward")
-                                .font(.system(size: 25, weight: .bold, design: .rounded))
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                        })
-                        Text(title)
-                            .font(.title3)
-                            .bold()
-                            .frame(width : 270)
-                            .frame(maxWidth: .infinity)
-                        Spacer()
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(width: gp.size.width)
-                }
-                .padding(.top,20)
-                .frame(width: gp.size.width, alignment: .center)
-                Image("0003")
-                    .resizable()
-                    .frame(width: gp.size.width, height: 250)
-                    .padding(.bottom,10)
-                
-                VStack (alignment: .leading, spacing: 15) {
-                    Text(description)
-                        .onTapGesture {
-                            print(description)
-                        }
-                    Text(createdDate)
-                }
-                .padding(10)
-                Spacer()
-            }
-        }
-        .background(Color.white)
-        .navigationBarHidden(true)
-        .navigationBarBackButtonHidden(true)
-        .edgesIgnoringSafeArea(.top)
-//        .navigationBarItems(leading:
-//                                Button(action: {
-//                                    self.presentationMode.wrappedValue.dismiss()
-//                                }, label: {
-//                                    Image(systemName: "arrow.backward")
-//                                        .font(.system(size: 25, weight: .bold, design: .rounded))
-//                                        .foregroundColor(.black)
-//                                })
-//        )
-        
-    }
-}
-
 

@@ -8,32 +8,62 @@
 import Foundation
 import SwiftUI
 
+enum SortOption {
+    case AZasc
+    case AZdesc
+    case CreateAtAsc
+    case CreateAtDesc
+    case IDAsc
+    case IDDecs
+}
+
+func isoStringDateToDate( string : String) -> Date {
+    let desDateFormatter = DateFormatter()
+    desDateFormatter.timeZone  = TimeZone.current
+    desDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SZ"
+    if let raw = desDateFormatter.date(from:string){
+        return raw
+    }
+    else {
+        return Date()
+    }
+}
+
 struct ProductStore {
     init( from data : ProductListJson ) {
         var products : [Product] = []
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "th_TH")
+        dateFormatter.dateFormat = "d MMM yy / HH:mm น."
+        
         for item in data.list {
             var product = Product()
             product.id = Int(item.id) ?? 0
             product.title = item.title
             product.description = item.description
-            product.createdAt = Date() // Comeback to update here
+            product.createdAt = isoStringDateToDate(string: item.createdAt)
+            product.createdAtTH = dateFormatter.string(from: product.createdAt)
             product.coverImageURL = URL( string: item.image_url.coverURLstring )
             product.thumbnailImageURL = URL( string: item.image_url.thumbURLstring)
             products.append(product)
         }
         self.products = products // do not sort here, sort in ViewModel with setting condition
-        scrollPageShow = []
     }
     
     init() {
         products = []
-        scrollPageShow = []
     }
-    
+
+    let numberOfProductInPage = 5
     var products : [Product]
-    var scrollPageShow : [Product]
+    
     var isProductsEmpty : Bool { products.isEmpty }
     var numOfProducts: Int { products.count }
+    var showLists : [[Int]] = [[0,1,2,3,4]]
+    var numberOfPages : Int  {
+           products.count / numberOfProductInPage
+    }
     
     func getProductIDby( index : Int ) -> Int {
         if index < products.count {
@@ -42,6 +72,20 @@ struct ProductStore {
         else {
             return 0
         }
+    }
+    
+    mutating func updateShowLists(){
+        var list : [[Int]] = []
+        for i in 0..<numberOfPages {
+            var listInPage : [Int] = []
+            for j in 0..<5 {
+                listInPage.append( (numberOfProductInPage * i) + j)
+            }
+            list.append(listInPage)
+            print("Page \(i) = \(listInPage)")
+        }
+        self.showLists = list
+        print(showLists)
     }
     
     func getIndexIDby( productID : Int ) -> Int? {
@@ -86,6 +130,7 @@ struct Product {
     var title : String = ""
     var description : String = ""
     var createdAt : Date = Date()
+    var createdAtTH : String = ""
     var placeHolder = UIImage(systemName: "icloud.and.arrow.down")
 //    var : UIImageView?
     

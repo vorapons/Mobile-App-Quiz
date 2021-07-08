@@ -11,6 +11,7 @@
 		AF37BBDF26953ADB009DFFD7 /* ProductModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF37BBDE26953ADB009DFFD7 /* ProductModel.swift */; };
 		AF37BBE526956CED009DFFD7 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = AF37BBE426956CED009DFFD7 /* SDWebImageSwiftUI */; };
 		AF37BBE72695F481009DFFD7 /* loading.gif in Resources */ = {isa = PBXBuildFile; fileRef = AF37BBE62695F481009DFFD7 /* loading.gif */; };
+		AF37BBEA26974433009DFFD7 /* Extension_Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF37BBE926974433009DFFD7 /* Extension_Date.swift */; };
 		AF7D657026930535001DEB20 /* AppQuizApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7D656F26930535001DEB20 /* AppQuizApp.swift */; };
 		AF7D657226930535001DEB20 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7D657126930535001DEB20 /* ContentView.swift */; };
 		AF7D657426930536001DEB20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF7D657326930536001DEB20 /* Assets.xcassets */; };
@@ -22,6 +23,7 @@
 		AF37BBDC2694D32F009DFFD7 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		AF37BBDE26953ADB009DFFD7 /* ProductModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductModel.swift; sourceTree = "<group>"; };
 		AF37BBE62695F481009DFFD7 /* loading.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = loading.gif; sourceTree = "<group>"; };
+		AF37BBE926974433009DFFD7 /* Extension_Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension_Date.swift; sourceTree = "<group>"; };
 		AF7D656C26930535001DEB20 /* AppQuiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQuiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF7D656F26930535001DEB20 /* AppQuizApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQuizApp.swift; sourceTree = "<group>"; };
 		AF7D657126930535001DEB20 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,6 +45,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF37BBE82697441E009DFFD7 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				AF37BBE926974433009DFFD7 /* Extension_Date.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		AF7D656326930535001DEB20 = {
 			isa = PBXGroup;
 			children = (
@@ -62,6 +72,7 @@
 		AF7D656E26930535001DEB20 /* AppQuiz */ = {
 			isa = PBXGroup;
 			children = (
+				AF37BBE82697441E009DFFD7 /* Extension */,
 				AF37BBDE26953ADB009DFFD7 /* ProductModel.swift */,
 				AF37BBDC2694D32F009DFFD7 /* MainViewModel.swift */,
 				AF7D656F26930535001DEB20 /* AppQuizApp.swift */,
@@ -162,6 +173,7 @@
 				AF7D657F2693054B001DEB20 /* Json.swift in Sources */,
 				AF7D657226930535001DEB20 /* ContentView.swift in Sources */,
 				AF7D657026930535001DEB20 /* AppQuizApp.swift in Sources */,
+				AF37BBEA26974433009DFFD7 /* Extension_Date.swift in Sources */,
 				AF37BBDD2694D32F009DFFD7 /* MainViewModel.swift in Sources */,
 				AF37BBDF26953ADB009DFFD7 /* ProductModel.swift in Sources */,
 			);

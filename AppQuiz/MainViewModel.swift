@@ -9,12 +9,11 @@ import Foundation
 import SwiftUI
 import Combine
 
-let numberOfProductInPage = 20
+
 
 class MainViewModel : ObservableObject {
     
     @Published var productStore : ProductStore
-    @Published var showLists : [[Int]] = [[0,1,2,3,4]]
     // var MainData : ContentData
     // Data must be arragable
     
@@ -27,8 +26,11 @@ class MainViewModel : ObservableObject {
         if( jsonData != nil ){
             let productListJson = try! JSONDecoder().decode( ProductListJson.self, from: jsonData!)
             productStore = ProductStore(from: productListJson)
+            
         }
     }
+    
+
     
     func loadImage(){
         
@@ -43,12 +45,12 @@ class MainViewModel : ObservableObject {
     }
     
     func updateShowListOf( page : Int, showIndex : Int ) {
-        let numberOfProductsInShowList = showLists[page].count
-        if( page < showLists.count ) {
+        let numberOfProductsInShowList = productStore.showLists[page].count
+        if( page < productStore.showLists.count ) {
             for i in 0..<5 {
-                let addIndex = (page * numberOfProductInPage) + numberOfProductsInShowList + i
+                let addIndex = (page * productStore.numberOfProductInPage) + numberOfProductsInShowList + i
                 if( addIndex < productStore.products.count ) {
-                    showLists[page].append( addIndex )
+                    productStore.showLists[page].append( addIndex )
                     print("Add to ShowList Index = ",addIndex)
                 }
             }
@@ -74,7 +76,7 @@ class MainViewModel : ObservableObject {
 //        }
 //        return productIdList
         var productIdList : [Int] = []
-        for showList in showLists {
+        for showList in productStore.showLists {
             for i in showList {
                 if( !productStore.products[i].imageLoaded) {
                     print("Prepare load image at index = \(i)")
