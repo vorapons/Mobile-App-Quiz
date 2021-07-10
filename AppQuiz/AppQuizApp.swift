@@ -15,9 +15,6 @@ struct AppQuizApp: App {
     init() {
         mainVM = MainViewModel()
         mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
-//            for i in 0..<5 {
-//                mainVM.loadImage(productId: i)
-//            }
         mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
         print("Number of All Products =  \(mainVM.productStore.products.count)" )
         mainVM.productStore.updateShowLists()

@@ -30,6 +30,20 @@ func isoStringDateToDate( string : String) -> Date {
 }
 
 struct ProductStore {
+    
+    var sortOption : SortOption {
+        get {
+           return sorting
+        }
+        set (newSort){
+            sorting = newSort
+            print("Sorting")
+            sortProductsByOption( option : newSort)
+        }
+    }
+    
+    private var sorting : SortOption = .CreateAtDesc
+    
     init( from data : ProductListJson ) {
         var products : [Product] = []
         
@@ -55,6 +69,29 @@ struct ProductStore {
         products = []
     }
 
+    mutating func sortProductsByOption( option : SortOption) {
+        
+        if( option == .CreateAtAsc ) {
+            self.products  = self.products.sorted { $0.createdAt < $1.createdAt }
+        }
+        else if ( option == .CreateAtDesc ){
+            self.products  = self.products.sorted { $0.createdAt > $1.createdAt }
+        }
+        else if ( option == .AZasc){
+            self.products  = self.products.sorted { $0.title.lowercased() < $1.title.lowercased() }
+        }
+        else if ( option == .AZdesc ){
+            self.products  = self.products.sorted { $0.title.lowercased() > $1.title.lowercased() }
+        }
+        else if ( option == .IDAsc ){
+            self.products  = self.products.sorted { $0.id < $1.id }
+        }
+        else if ( option == .IDDecs ){
+            self.products  = self.products.sorted { $0.id > $1.id }
+        }
+        
+    }
+    
     let numberOfProductInPage = 5
     var products : [Product]
     

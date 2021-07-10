@@ -14,6 +14,7 @@ struct ContentView: View {
     
 //    @ObservedObject var mainVM : MainViewModel = MainViewModel()
     @ObservedObject var mainVM : MainViewModel
+    @State var sortOption : SortOption = .CreateAtAsc
 
     var body: some View {
         NavigationView {
@@ -22,15 +23,8 @@ struct ContentView: View {
                     Text("Product")
                         .bold()
                     Spacer()
-                    Menu {
-                        Button("Sort A-Z", action: {})
-                        Button("Sort Z-A", action: {})
-                        Button("Sort Created Date", action: {})
-                    } label: {
-                        Image(systemName: "arrow.up.arrow.down")
-                            .padding()
-                            .font(.headline)
-                    }
+                    
+                    SortingMenu(sortOption: $mainVM.productStore.sortOption)
                 }
                 .padding(.leading, 40)
                 GeometryReader { gp in
@@ -203,7 +197,6 @@ struct ProductRow : View {
                         RoundedRectangle(cornerRadius: 10.0)
                         .stroke(Color.gray) )
                 HStack(alignment : .top){
-//                    Image("000\( Int.random(in:0..<6) )")
                     Image( uiImage: ((product.thumbnailImage != nil) ? product.thumbnailImage! : product.placeHolder)!)
                         .resizable()
                         .frame(width: 100, height: gp.size.height, alignment: .center)
@@ -287,3 +280,53 @@ struct ProductDetailView : View {
     }
 }
 
+
+struct SortingMenu: View {
+    @Binding var sortOption : SortOption
+    var body: some View {
+        Menu(  ) {
+            Button(action: {
+                print("Sort A-Z")
+                sortOption = .AZasc
+            }, label: {
+                if ( sortOption == .AZasc ){
+                    Label("Sort by title A-Z", systemImage: "checkmark.circle")
+                }
+                else { Text("Sort by title A-Z") }
+            })
+            Button(action: {
+                print("Sort Z-A")
+                sortOption = .AZdesc
+            }, label: {
+                if ( sortOption == .AZdesc ){
+                    Label("Sort by title Z-A", systemImage: "checkmark.circle")
+                }
+                else { Text("Sort by title Z-A") }
+            })
+            Button(action: {
+                print("Create Date Ascending")
+                sortOption = .CreateAtAsc
+            }, label: {
+                if ( sortOption == .CreateAtAsc ){
+                    Label("Create Date Ascending", systemImage: "checkmark.circle")
+                }
+                else { Text("Create Date Ascending") }
+            })
+            Button(action: {
+                print("Sort Created Date Desc")
+                sortOption = .CreateAtDesc
+            }, label: {
+                if ( sortOption == .CreateAtDesc ){
+                    Label("Create Date Descending", systemImage: "checkmark.circle")
+                }
+                else { Text("Create Date Descending") }
+            })
+            
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .padding()
+                .font(.headline)
+                .foregroundColor(.white)
+        }
+    }
+}
