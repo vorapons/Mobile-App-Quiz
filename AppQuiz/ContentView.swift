@@ -15,81 +15,102 @@ struct ContentView: View {
 //    @ObservedObject var mainVM : MainViewModel = MainViewModel()
     @ObservedObject var mainVM : MainViewModel
     @State var sortOption : SortOption = .CreateAtAsc
-
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    var placeHolder = UIImage(systemName: "square.and.arrow.down")
+    
     var body: some View {
-        NavigationView {
-            VStack {
-                HStack {
-                    Text("Product")
-                        .bold()
-                    Spacer()
+        PreviewCover(condition: mainVM.bannerStore.isAllBannerLoaded){
+            NavigationView {
+                VStack(spacing : 0 ){
+                    VStack( ){
+                        HStack {
+                            Text("Product")
+                                .bold()
+                            Spacer()
+                            SortingMenu(sortOption: $mainVM.productStore.sortOption)
+                        }
+                        .padding(.leading , 40 )
+                        Rectangle()
+                            .frame( height : 3 )
+                            .foregroundColor(.gray)
+                            .padding(.all, 0)
+                            .padding(.bottom,5)
+                            .opacity(0.5)
+                    }
                     
-                    SortingMenu(sortOption: $mainVM.productStore.sortOption)
-                }
-                .padding(.leading, 40)
-                GeometryReader { gp in
-                    ScrollView(.vertical) {
-                        VStack {
-                            ScrollView(.horizontal) {
-                                HStack {
-                                    ForEach ( 0..<5 ) { i in
-//                                        Image("000\(i%6)")
-                                        if( !mainVM.productStore.products.isEmpty  ) {
-                                            Image( uiImage: (((mainVM.productStore.products[0].thumbnailImage != nil) ? mainVM.productStore.products[0].thumbnailImage! : mainVM.productStore.products[0].placeHolder)! ))
-                                                .resizable()
-                                                .frame(width: 317 , height: 146)
-                                                .cornerRadius(5)
-                                        }
-                                        else
-                                        {
-                                            Image( systemName: "icloud.and.arrow.down")
-                                                .resizable()
-                                                .frame(width: 317 , height: 146)
-                                                .cornerRadius(5)
+                    GeometryReader { gp in
+                        // ScrollView(.vertical) {
+                        ScrolinOnPortVonLandStack {
+                            VonPortHonLandStack {
+                                ScrollView( verticalSizeClass == .compact ? .vertical : .horizontal ) {
+                                    HonPortVonLandStack {
+                                        ForEach ( mainVM.bannerStore.banners ) { banner in
+                                            //                                        Image("000\(i%6)")
+//                                            if( !mainVM.bannerStore.banners.isEmpty && banner.image != nil ) {
+//                                                Image( uiImage: (banner.image! ))
+//                                                    .resizable()
+//                                                    .frame(width: 317 , height: 146)
+//                                                    .cornerRadius(5)
+//                                            }
+//                                            else {
+//                                                Image( systemName: "icloud.and.arrow.down")
+//                                                    .resizable()
+//                                                    .frame(width: 317 , height: 146)
+//                                                    .cornerRadius(5)
+//                                            }
+                                            
+                                            Image( uiImage: banner.image != nil ? banner.image! : placeHolder! )
+                                            .resizable()
+//                                            .frame(width: 317 , height: 146)
+                                            .frame(height : 146 )
+                                                .frame(maxWidth: verticalSizeClass == .compact ? .infinity : 317)
+                                            .cornerRadius(5)
+                                                                                    }
+                                    }
+                                }.padding(.leading , 10)
+                                //                            .padding(.bottom , 10)
+                                .frame( height : verticalSizeClass == .compact ? gp.size.height : nil )
+                                //                            GeometryReader { bodyGP in
+                                if verticalSizeClass == .compact {
+                                    TabView {
+                                        ForEach( 0..<mainVM.productStore.numberOfPages ){ i in
+//                                        ForEach( 0..<1 ){ i in
+                                            ScrollInPagesWithPages(mainVM: mainVM,pageNumber: i)
+//                                            ScrollInPages(mainVM: mainVM)
                                         }
                                     }
+                                    .frame(width: gp.size.width*3/5 )
+                                    .frame( maxHeight : .infinity )
+                                    .tabViewStyle(PageTabViewStyle())
+                                    
                                 }
-                            }.padding(.leading , 10)
-                            .padding(.bottom , 10)
-//                            TabView {
-//                                ForEach( 0..<4 ){ i in
-//                                    ScrollInPages(mainVM: mainVM)
-//                                }
-//                            }
-//                            .frame(width: gp.size.width, height: gp.size.height + yExtension)
-//                            .tabViewStyle(PageTabViewStyle())
-                            TabView {
-//                                ForEach( 0..<mainVM.numberOfPages ){ i in
-                                ForEach( 0..<1 ){ i in
-//                                    ScrollInPagesWithPages(mainVM: mainVM,pageNumber: i)
-                                    ScrollInPages(mainVM: mainVM)
+                                else {
+                                    TabView {
+                                        ForEach( 0..<mainVM.productStore.numberOfPages ){ i in
+//                                        ForEach( 0..<1 ){ i in
+                                            ScrollInPagesWithPages(mainVM: mainVM,pageNumber: i)
+//                                            ScrollInPages(mainVM: mainVM)
+                                        }
+                                    }
+                                    .frame(width: gp.size.width, height: gp.size.height)
+                                    //  .frame( maxHeight : .infinity )
+                                    
+                                    .tabViewStyle(PageTabViewStyle())
                                 }
                             }
-                            .frame(width: gp.size.width, height: gp.size.height + yExtension)
-                            .tabViewStyle(PageTabViewStyle())
                         }
-                        
                     }
-                    // Bug fix for TabView EdgeIgnore not working
-                    .offset(y: -yExtension)
                 }
-            }
-            .navigationBarTitle("Production")
-            .navigationBarHidden(true)
+                
+                .navigationBarTitle("Production")
+                .navigationBarHidden(true)
+            }.phoneOnlyStackNavigationView()
         }
         .edgesIgnoringSafeArea(.all)
-        .onAppear(perform: {
-//            mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
-////            for i in 0..<5 {
-////                mainVM.loadImage(productId: i)
-////            }
-//            mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
-//            print("Number of All Products =  \(mainVM.productStore.products.count)" )
-//            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
-//                // Deley on Appear
-//            }
-        })
     }
+    
+    
     
     // Not Use delete soon
     func setupAppearance() {
@@ -107,11 +128,22 @@ struct ContentView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
+    
+    static var product = Product(id: 0, coverImage: UIImage(named: "0001"), thumbnailImage: UIImage(named: "0002"), coverImageURL: nil, thumbnailImageURL: nil, coverLoaded: true, thumbnailLoaded: true, title: "Licensed Frozen Chips", description: "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals", createdAt: Date(), createdAtTH: "9/12/1211", placeHolder: nil)
+    
     static var previews: some View {
 //        ContentView()
 //        ProductDetailView2()
 //        TestImageView()
-        EmptyView()
+        Group{
+//            ProductDetailView(product: product)
+//            ProductDetailView(product: product)
+//                .previewLayout(.fixed(width: 812, height: 375)) // 1
+//                .environment(\.verticalSizeClass, .compact) // 3
+//                .environment(\.horizontalSizeClass, .compact) // 2
+            EmptyView()
+        }
+       
     }
 }
 
@@ -134,11 +166,9 @@ struct ScrollInPages: View {
                             if( i == mainVM.productStore.showLists[0].count - 3  ) {
                                 print("On appear page = \(i) ")
                                 mainVM.updateShowListOf(page: 0, showIndex: i)
-                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow2())
+                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow())
                             }
-                            
                         }
-                        
                     }
                 }
             }
@@ -155,28 +185,25 @@ struct ScrollInPagesWithPages: View {
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack {
-//                ForEach ( 0..<10 ) { i in
-//                List ( 0..<10 , id: \.self) { i in
-                ForEach( mainVM.productStore.showLists[pageNumber], id : \.self ) { i in
+                ForEach( mainVM.productStore.showLists[pageNumber].indices, id : \.self ) { i in
                     // Add selected for Show condition here
-                    if( mainVM.productStore.products[i].imageLoaded && mainVM.productStore.showLists[0].contains(i) ) {
-                        NavigationLink( destination: ProductDetailView( product : $mainVM.productStore.products[i] ) ) {
-                            ProductRow(product: $mainVM.productStore.products[i] )
+                    if( mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]].imageLoaded && mainVM.productStore.showLists[pageNumber].contains(mainVM.productStore.showLists[pageNumber][i]) ) {
+                        NavigationLink( destination: ProductDetailView( product : $mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]] ) ) {
+                            ProductRow(product: $mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]] )
                         }.onAppear(){
-                            print("On Appear run at \(i)")
-                            if( i == mainVM.productStore.showLists[0].count - 3  ) {
+                            print("OnAppear of Page \(pageNumber):\(i) ShowIndex : \(mainVM.productStore.showLists[pageNumber][i]) ")
+                            if( i == mainVM.productStore.showLists[pageNumber].count - 3  ) {
                                 print("On appear page = \(i) ")
-                                mainVM.updateShowListOf(page: 0, showIndex: i)
-                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow2())
+                                mainVM.updateShowListOf(page: pageNumber, showIndex: i)
+                                mainVM.loadImageList(productIdList: mainVM.prepareProductForShow())
                             }
-                            
+
                         }
                         
                     }
                 }
             }
         }
-        
     }
 }
 
@@ -203,38 +230,44 @@ struct ProductRow : View {
                         .cornerRadius(5)
                     VStack (alignment: .leading, spacing: 5) {
                         Text(product.title)
-                            .font(.title3)
+//                            .font(.title3)
+                            .font(.headline)
                             .fontWeight(.semibold)
-                            .padding(.bottom,5)
+//                            .padding(.bottom,5)
                         Text(product.description)
                             .font(.footnote)
                             .lineLimit(5)
                             .multilineTextAlignment(.leading)
-                            .frame(height: 90 )
-                        Text("\(product.id)")
-                            .font(.footnote)
+//                            .frame(height: 90 )
+                            .frame( maxHeight : .infinity,alignment: .top)
+//                        Text("\(product.id)")
+//                            .font(.footnote)
+                        Spacer()
                         Text("วันที่สร้าง " + product.createdAtTH )
                             .font(.footnote)
-                        Spacer()
+                            .padding(.bottom,10)
                     }.frame( height: gp.size.height, alignment: .center)
+                    .foregroundColor(.black)
                     .padding(5)
                 }
             }
         }.frame(width: 350, height: 170, alignment: .center)
     }
-    
 }
 
 struct ProductDetailView : View {
     
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     @Binding var product : Product
+    var placeHolder = UIImage(systemName: "square.and.arrow.down")
     
     var body : some View {
     
         GeometryReader { gp in
-            VStack(spacing : 0 ) {
+            VStack {
                 ZStack {
                     Rectangle()
                         .frame(width: gp.size.width, height: 70)
@@ -251,7 +284,7 @@ struct ProductDetailView : View {
                         Text(product.title)
                             .font(.title3)
                             .bold()
-                            .frame(width : 270)
+                            .frame(width: gp.size.width-100)
                             .frame(maxWidth: .infinity)
                         Spacer()
                             .frame(maxWidth: .infinity)
@@ -260,17 +293,48 @@ struct ProductDetailView : View {
                 }
                 .padding(.top,20)
                 .frame(width: gp.size.width, alignment: .center)
-                Image( uiImage: ((product.thumbnailImage != nil) ? product.thumbnailImage! : product.placeHolder)!)
-                    .resizable()
-                    .frame(width: gp.size.width, height: 250)
-                    .padding(.bottom,10)
-                
-                VStack (alignment: .leading, spacing: 15) {
-                    Text(product.description)
-                    Text("วันที่สร้าง " + product.createdAtTH)
+                if verticalSizeClass == .compact {
+                    HStack( alignment : .top ,spacing : 0 ) {
+                        
+                        Image( uiImage: product.coverImage != nil ? product.coverImage! : placeHolder! )
+                            .resizable()
+                            .frame(width: gp.size.width/2, height: 250)
+                            .padding(.bottom,10)
+                            .padding(.leading,10)
+                        
+                        VStack (alignment: .leading, spacing: 15) {
+                            Text(product.description)
+                            Text("วันที่สร้าง " + product.createdAtTH)
+                        }
+                        .padding(.leading, 10)
+                        .padding(.trailing,20)
+                        Spacer()
+                    }
                 }
-                .padding(10)
-                Spacer()
+                else {
+                    VStack(spacing : 0 ) {
+                        if( product.coverImage != nil ) {
+                            Image( uiImage: product.coverImage! )
+                                    .resizable()
+                                    .frame(width: gp.size.width, height: 250)
+                                    .padding(.bottom,10)
+                        }
+                        else {
+                            Image( uiImage: placeHolder! )
+                                    .resizable()
+                                    .frame(width: gp.size.width/2, height: 250)
+                                    .padding(.bottom,10)
+                                    .padding(.leading,10)
+                        }
+                                
+                            VStack (alignment: .leading, spacing: 15) {
+                                Text(product.description)
+                                Text("วันที่สร้าง " + product.createdAtTH)
+                            }
+                            .padding(10)
+                            Spacer()
+                    }
+                }
             }
         }
         .background(Color.white)
@@ -321,12 +385,122 @@ struct SortingMenu: View {
                 }
                 else { Text("Create Date Descending") }
             })
+            Button(action: {
+                print("Sort by ID")
+                sortOption = .IDAsc
+            }, label: {
+                if ( sortOption == .IDAsc ){
+                    Label("Sort by ID", systemImage: "checkmark.circle")
+                }
+                else { Text("Sort by ID") }
+            })
+            Button(action: {
+                print("Sort by ID Desc")
+                sortOption = .IDDesc
+            }, label: {
+                if ( sortOption == .IDAsc ){
+                    Label("Sort by ID Desc", systemImage: "checkmark.circle")
+                }
+                else { Text("Sort by ID Desc") }
+            })
             
         } label: {
             Image(systemName: "arrow.up.arrow.down")
                 .padding()
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.black)
+        }
+    }
+}
+
+
+struct VonPortHonLandStack<Content: View>: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    var content: Content
+
+  public init( @ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    if verticalSizeClass == .compact  {
+        HStack (alignment : .top) { content }
+    }
+    else {
+        VStack { content }
+    }
+  }
+}
+
+struct HonPortVonLandStack<Content: View>: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    var content: Content
+
+  public init( @ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    if verticalSizeClass == .compact  {
+        VStack () { content }
+    }
+    else {
+        HStack { content }
+    }
+  }
+}
+
+struct ScrolinOnPortVonLandStack<Content: View>: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    var content: Content
+
+  public init( @ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    if verticalSizeClass == .compact  {
+        VStack () { content }
+    }
+    else {
+        ScrollView(.vertical) { content }
+    }
+  }
+}
+
+struct PreviewCover<Content: View> : View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    var content: Content
+    var condition : Bool
+
+    public init( condition : Bool ,@ViewBuilder content: () -> Content) {
+    self.content = content()
+    self.condition = condition
+  }
+
+  var body: some View {
+    if condition  {
+        content
+    }
+    else {
+        
+        ProgressView()
+            .progressViewStyle(CircularProgressViewStyle(tint: .yellow))
+            .scaleEffect(3)
+    }
+  }
+}
+
+extension View {
+    func phoneOnlyStackNavigationView() -> some View {
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            return AnyView(self.navigationViewStyle(StackNavigationViewStyle()))
+        } else {
+            return AnyView(self)
         }
     }
 }

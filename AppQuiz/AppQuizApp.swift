@@ -11,41 +11,26 @@ import SwiftUI
 struct AppQuizApp: App {
     
     let mainVM : MainViewModel
+//    @escaping var loading : Bool = false
     
     init() {
         mainVM = MainViewModel()
-        mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
-        mainVM.loadImageList( productIdList: mainVM.prepareProductForShow2() )
+//        mainVM.setProductStoreDataFromJson(jsonData: listJson.data(using: .utf8) )
+        mainVM.loadProductJson()
+        mainVM.loadBannerJson()
+//        mainVM.loadImageList( productIdList: mainVM.prepareProductForShow() )
         print("Number of All Products =  \(mainVM.productStore.products.count)" )
-        mainVM.productStore.updateShowLists()
+//        mainVM.productStore.updateShowLists()
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
             // Deley on Appear
+//            self.loading = true
         }
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView(mainVM: mainVM)
-//            TestImageView()
+                ContentView(mainVM: mainVM)
         }
+    
     }
 }
-
-
-//let store = EmojiArtDocumentStore(named: "Emoji Art")
-//
-////    store.addDocument()
-////    store.addDocument(named: "Hello World")
-//init() {
-////        store.addDocument()
-////        store.addDocument(named: "Hello World")
-//}
-//
-//
-//var body: some Scene {
-//    WindowGroup {
-////            EmojiArtDocumentView(document: EmojiArtDocument())
-//        EmojiArtDocumentChooser().environmentObject(store)
-//    }
-//}
-//}

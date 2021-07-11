@@ -8,13 +8,15 @@
 import Foundation
 import SwiftUI
 
+let productJsobURLString = "https://60b7316f17d1dc0017b89435.mockapi.io/api/v1/list?sortBy=createdAt&order=desc"
+
 enum SortOption {
     case AZasc
     case AZdesc
     case CreateAtAsc
     case CreateAtDesc
     case IDAsc
-    case IDDecs
+    case IDDesc
 }
 
 func isoStringDateToDate( string : String) -> Date {
@@ -86,29 +88,24 @@ struct ProductStore {
         else if ( option == .IDAsc ){
             self.products  = self.products.sorted { $0.id < $1.id }
         }
-        else if ( option == .IDDecs ){
+        else if ( option == .IDDesc ){
             self.products  = self.products.sorted { $0.id > $1.id }
         }
         
     }
     
-    let numberOfProductInPage = 5
+    let numberOfProductInPage = 20
     var products : [Product]
     
     var isProductsEmpty : Bool { products.isEmpty }
     var numOfProducts: Int { products.count }
     var showLists : [[Int]] = [[0,1,2,3,4]]
-    var numberOfPages : Int  {
-           products.count / numberOfProductInPage
-    }
+    var numberOfPages : Int  { (products.count / numberOfProductInPage)+1 }
     
     func getProductIDby( index : Int ) -> Int {
-        if index < products.count {
-            return products[index].id
-        }
-        else {
-            return 0
-        }
+        if index < products.count
+        { return products[index].id }
+        else { return 0 }
     }
     
     mutating func updateShowLists(){
@@ -196,7 +193,7 @@ struct ProductDataJson : Codable {
         case image_url
     }
     
-//  Example Json Data
+//  Example Json Data for One Product
 //    "id":"1",
 //    "createdAt":"2021-06-01T20:31:46.571Z",
 //    "title":"Licensed Frozen Chips",
