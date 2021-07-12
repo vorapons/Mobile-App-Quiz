@@ -166,7 +166,7 @@ struct Product {
     var createdAt : Date = Date()
     var createdAtTH : String = ""
     var placeHolder = UIImage(systemName: "icloud.and.arrow.down")
-//    var : UIImageView?
+
     
     var imageLoaded : Bool {
         return coverLoaded && thumbnailLoaded
@@ -214,6 +214,5 @@ struct ImageContent : Codable {
     }
 }
 
-//var productData : ProductList
 
 

@@ -24,54 +24,32 @@ struct ContentView: View {
             NavigationView {
                 VStack(spacing : 0 ){
                     VStack( ){
-                        HStack {
+                        HStack ( alignment: .center ){
                             Text("Product")
                                 .bold()
                             Spacer()
                             SortingMenu(sortOption: $mainVM.productStore.sortOption)
                         }
                         .padding(.leading , 40 )
-                        Rectangle()
-                            .frame( height : 3 )
-                            .foregroundColor(.gray)
-                            .padding(.all, 0)
-                            .padding(.bottom,5)
-                            .opacity(0.5)
+                        .padding(.bottom , 0 )
+                        Divider()
+                            .padding(.bottom,10)
                     }
-                    
                     GeometryReader { gp in
-                        // ScrollView(.vertical) {
                         ScrolinOnPortVonLandStack {
                             VonPortHonLandStack {
                                 ScrollView( verticalSizeClass == .compact ? .vertical : .horizontal ) {
                                     HonPortVonLandStack {
                                         ForEach ( mainVM.bannerStore.banners ) { banner in
-                                            //                                        Image("000\(i%6)")
-//                                            if( !mainVM.bannerStore.banners.isEmpty && banner.image != nil ) {
-//                                                Image( uiImage: (banner.image! ))
-//                                                    .resizable()
-//                                                    .frame(width: 317 , height: 146)
-//                                                    .cornerRadius(5)
-//                                            }
-//                                            else {
-//                                                Image( systemName: "icloud.and.arrow.down")
-//                                                    .resizable()
-//                                                    .frame(width: 317 , height: 146)
-//                                                    .cornerRadius(5)
-//                                            }
-                                            
                                             Image( uiImage: banner.image != nil ? banner.image! : placeHolder! )
                                             .resizable()
-//                                            .frame(width: 317 , height: 146)
                                             .frame(height : 146 )
-                                                .frame(maxWidth: verticalSizeClass == .compact ? .infinity : 317)
+                                            .frame(maxWidth: verticalSizeClass == .compact ? .infinity : 317)
                                             .cornerRadius(5)
-                                                                                    }
+                                        }
                                     }
                                 }.padding(.leading , 10)
-                                //                            .padding(.bottom , 10)
                                 .frame( height : verticalSizeClass == .compact ? gp.size.height : nil )
-                                //                            GeometryReader { bodyGP in
                                 if verticalSizeClass == .compact {
                                     TabView {
                                         ForEach( 0..<mainVM.productStore.numberOfPages ){ i in
@@ -83,7 +61,6 @@ struct ContentView: View {
                                     .frame(width: gp.size.width*3/5 )
                                     .frame( maxHeight : .infinity )
                                     .tabViewStyle(PageTabViewStyle())
-                                    
                                 }
                                 else {
                                     TabView {
@@ -93,37 +70,18 @@ struct ContentView: View {
 //                                            ScrollInPages(mainVM: mainVM)
                                         }
                                     }
-                                    .frame(width: gp.size.width, height: gp.size.height)
-                                    //  .frame( maxHeight : .infinity )
-                                    
+                                    .frame(width: gp.size.width, height: gp.size.height )
                                     .tabViewStyle(PageTabViewStyle())
                                 }
                             }
                         }
                     }
                 }
-                
                 .navigationBarTitle("Production")
                 .navigationBarHidden(true)
             }.phoneOnlyStackNavigationView()
         }
         .edgesIgnoringSafeArea(.all)
-    }
-    
-    
-    
-    // Not Use delete soon
-    func setupAppearance() {
-        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        UINavigationBar.appearance().shadowImage = UIImage()
-        UINavigationBar.appearance().isTranslucent = true
-        UINavigationBar.appearance().backgroundColor = .clear
-        
-        UINavigationBar.appearance().titleTextAttributes =
-            [NSAttributedString.Key.foregroundColor : UIColor.red,
-             NSAttributedString.Key.font : UIFont.systemFont(ofSize: 50, weight: .heavy)]
-        UINavigationBar.appearance().backIndicatorImage = UIImage(systemName: "chevron.left.2")
-        UINavigationBar.appearance().backIndicatorTransitionMaskImage = UIImage(systemName: "chevron.left.2")
     }
 }
 
@@ -186,7 +144,6 @@ struct ScrollInPagesWithPages: View {
         ScrollView(.vertical) {
             LazyVStack {
                 ForEach( mainVM.productStore.showLists[pageNumber].indices, id : \.self ) { i in
-                    // Add selected for Show condition here
                     if( mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]].imageLoaded && mainVM.productStore.showLists[pageNumber].contains(mainVM.productStore.showLists[pageNumber][i]) ) {
                         NavigationLink( destination: ProductDetailView( product : $mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]] ) ) {
                             ProductRow(product: $mainVM.productStore.products[mainVM.productStore.showLists[pageNumber][i]] )
@@ -197,7 +154,6 @@ struct ScrollInPagesWithPages: View {
                                 mainVM.updateShowListOf(page: pageNumber, showIndex: i)
                                 mainVM.loadImageList(productIdList: mainVM.prepareProductForShow())
                             }
-
                         }
                         
                     }
@@ -230,15 +186,12 @@ struct ProductRow : View {
                         .cornerRadius(5)
                     VStack (alignment: .leading, spacing: 5) {
                         Text(product.title)
-//                            .font(.title3)
                             .font(.headline)
                             .fontWeight(.semibold)
-//                            .padding(.bottom,5)
                         Text(product.description)
                             .font(.footnote)
                             .lineLimit(5)
                             .multilineTextAlignment(.leading)
-//                            .frame(height: 90 )
                             .frame( maxHeight : .infinity,alignment: .top)
 //                        Text("\(product.id)")
 //                            .font(.footnote)
@@ -293,6 +246,7 @@ struct ProductDetailView : View {
                 }
                 .padding(.top,20)
                 .frame(width: gp.size.width, alignment: .center)
+                Divider().padding(.bottom,5)
                 if verticalSizeClass == .compact {
                     HStack( alignment : .top ,spacing : 0 ) {
                         
@@ -385,24 +339,25 @@ struct SortingMenu: View {
                 }
                 else { Text("Create Date Descending") }
             })
-            Button(action: {
-                print("Sort by ID")
-                sortOption = .IDAsc
-            }, label: {
-                if ( sortOption == .IDAsc ){
-                    Label("Sort by ID", systemImage: "checkmark.circle")
-                }
-                else { Text("Sort by ID") }
-            })
-            Button(action: {
-                print("Sort by ID Desc")
-                sortOption = .IDDesc
-            }, label: {
-                if ( sortOption == .IDAsc ){
-                    Label("Sort by ID Desc", systemImage: "checkmark.circle")
-                }
-                else { Text("Sort by ID Desc") }
-            })
+            // For Debugging
+//            Button(action: {
+//                print("Sort by ID")
+//                sortOption = .IDAsc
+//            }, label: {
+//                if ( sortOption == .IDAsc ){
+//                    Label("Sort by ID", systemImage: "checkmark.circle")
+//                }
+//                else { Text("Sort by ID") }
+//            })
+//            Button(action: {
+//                print("Sort by ID Desc")
+//                sortOption = .IDDesc
+//            }, label: {
+//                if ( sortOption == .IDAsc ){
+//                    Label("Sort by ID Desc", systemImage: "checkmark.circle")
+//                }
+//                else { Text("Sort by ID Desc") }
+//            })
             
         } label: {
             Image(systemName: "arrow.up.arrow.down")
@@ -453,6 +408,8 @@ struct HonPortVonLandStack<Content: View>: View {
 }
 
 struct ScrolinOnPortVonLandStack<Content: View>: View {
+
+    
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     var content: Content
@@ -493,14 +450,4 @@ struct PreviewCover<Content: View> : View {
             .scaleEffect(3)
     }
   }
-}
-
-extension View {
-    func phoneOnlyStackNavigationView() -> some View {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return AnyView(self.navigationViewStyle(StackNavigationViewStyle()))
-        } else {
-            return AnyView(self)
-        }
-    }
 }
